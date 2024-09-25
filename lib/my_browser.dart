@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:webview_windows/webview_windows.dart';
 import 'package:willo/main.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:tray_manager/tray_manager.dart';
 
 class MyBrowser extends StatefulWidget {
   const MyBrowser({super.key});
@@ -22,7 +23,12 @@ class _MyBrowser extends State<MyBrowser> {
   @override
   void initState() {
     super.initState();
+    _handleSetIcon();
     initPlatformState();
+  }
+
+  Future<void> _handleSetIcon() async {
+    await trayManager.setIcon('assets/app_icon.ico');
   }
 
   Future<void> initPlatformState() async {

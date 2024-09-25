@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:willo/my_browser.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -10,6 +11,10 @@ void main() async {
   await windowManager.ensureInitialized();
 
   runApp(const MyApp());
+  // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+  //   statusBarColor: Colors.transparent,
+  //   statusBarIconBrightness: Brightness.light,
+  // ));
 }
 
 class MyApp extends StatelessWidget {
