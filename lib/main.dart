@@ -97,17 +97,6 @@ class _MyAppState extends State<MyApp> {
     await _menuMain.buildFrom(
       [
         MenuItemLabel(
-          label: 'Change Context Menu',
-          image: getImagePath('darts_icon'),
-          onClicked: (menuItem) {
-            debugPrint("Change Context Menu");
-
-            _toogleMenu = !_toogleMenu;
-            _systemTray.setContextMenu(_toogleMenu ? _menuMain : _menuSimple);
-          },
-        ),
-        MenuSeparator(),
-        MenuItemLabel(
             label: 'Show',
             image: getImagePath('darts_icon'),
             onClicked: (menuItem) => _appWindow.show()),
@@ -141,118 +130,6 @@ class _MyAppState extends State<MyApp> {
             _timer = null;
 
             _systemTray.setImage(getTrayImagePath('app_icon'));
-          },
-        ),
-        MenuSeparator(),
-        SubMenu(
-          label: "Test API",
-          image: getImagePath('gift_icon'),
-          children: [
-            SubMenu(
-              label: "setSystemTrayInfo",
-              image: getImagePath('darts_icon'),
-              children: [
-                MenuItemLabel(
-                  label: 'setTitle',
-                  image: getImagePath('darts_icon'),
-                  onClicked: (menuItem) {
-                    final String text = WordPair.random().asPascalCase;
-                    debugPrint("click 'setTitle' : $text");
-                    _systemTray.setTitle(text);
-                  },
-                ),
-                MenuItemLabel(
-                  label: 'setImage',
-                  image: getImagePath('gift_icon'),
-                  onClicked: (menuItem) {
-                    String iconName =
-                        iconList[Random().nextInt(iconList.length)];
-                    String path = getTrayImagePath(iconName);
-                    debugPrint("click 'setImage' : $path");
-                    _systemTray.setImage(path);
-                  },
-                ),
-                MenuItemLabel(
-                  label: 'setToolTip',
-                  image: getImagePath('darts_icon'),
-                  onClicked: (menuItem) {
-                    final String text = WordPair.random().asPascalCase;
-                    debugPrint("click 'setToolTip' : $text");
-                    _systemTray.setToolTip(text);
-                  },
-                ),
-                MenuItemLabel(
-                  label: 'getTitle',
-                  image: getImagePath('gift_icon'),
-                  onClicked: (menuItem) async {
-                    String title = await _systemTray.getTitle();
-                    debugPrint("click 'getTitle' : $title");
-                  },
-                ),
-              ],
-            ),
-            MenuItemLabel(
-                label: 'disabled Item',
-                name: 'disableItem',
-                image: getImagePath('gift_icon'),
-                enabled: false),
-          ],
-        ),
-        MenuSeparator(),
-        MenuItemLabel(
-          label: 'Set Item Image',
-          onClicked: (menuItem) async {
-            debugPrint("click 'SetItemImage'");
-
-            String iconName = iconList[Random().nextInt(iconList.length)];
-            String path = getImagePath(iconName);
-
-            await menuItem.setImage(path);
-            debugPrint(
-                "click name: ${menuItem.name} menuItemId: ${menuItem.menuItemId} label: ${menuItem.label} image: ${menuItem.image}");
-          },
-        ),
-        MenuItemCheckbox(
-          label: 'Checkbox 1',
-          name: 'checkbox1',
-          checked: true,
-          onClicked: (menuItem) async {
-            debugPrint("click 'Checkbox 1'");
-
-            MenuItemCheckbox? checkbox1 =
-                _menuMain.findItemByName<MenuItemCheckbox>("checkbox1");
-            await checkbox1?.setCheck(!checkbox1.checked);
-
-            MenuItemCheckbox? checkbox2 =
-                _menuMain.findItemByName<MenuItemCheckbox>("checkbox2");
-            await checkbox2?.setEnable(checkbox1?.checked ?? true);
-
-            debugPrint(
-                "click name: ${checkbox1?.name} menuItemId: ${checkbox1?.menuItemId} label: ${checkbox1?.label} checked: ${checkbox1?.checked}");
-          },
-        ),
-        MenuItemCheckbox(
-          label: 'Checkbox 2',
-          name: 'checkbox2',
-          onClicked: (menuItem) async {
-            debugPrint("click 'Checkbox 2'");
-
-            await menuItem.setCheck(!menuItem.checked);
-            await menuItem.setLabel(WordPair.random().asPascalCase);
-            debugPrint(
-                "click name: ${menuItem.name} menuItemId: ${menuItem.menuItemId} label: ${menuItem.label} checked: ${menuItem.checked}");
-          },
-        ),
-        MenuItemCheckbox(
-          label: 'Checkbox 3',
-          name: 'checkbox3',
-          checked: true,
-          onClicked: (menuItem) async {
-            debugPrint("click 'Checkbox 3'");
-
-            await menuItem.setCheck(!menuItem.checked);
-            debugPrint(
-                "click name: ${menuItem.name} menuItemId: ${menuItem.menuItemId} label: ${menuItem.label} checked: ${menuItem.checked}");
           },
         ),
         MenuSeparator(),
@@ -301,8 +178,8 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-const backgroundStartColor = Color(0xFFFFD500);
-const backgroundEndColor = Color(0xFFF6A00C);
+const backgroundStartColor = Color(0xFFFFFFFF);
+const backgroundEndColor = Color(0xFFFFFFFF);
 
 class TitleBar extends StatelessWidget {
   const TitleBar({super.key});
