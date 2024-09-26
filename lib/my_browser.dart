@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:webview_windows/webview_windows.dart';
 import 'package:willo/main.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:tray_manager/tray_manager.dart';
 
 class MyBrowser extends StatefulWidget {
   const MyBrowser({super.key});
@@ -23,12 +22,7 @@ class _MyBrowser extends State<MyBrowser> {
   @override
   void initState() {
     super.initState();
-    _handleSetIcon();
     initPlatformState();
-  }
-
-  Future<void> _handleSetIcon() async {
-    await trayManager.setIcon('assets/app_icon.ico');
   }
 
   Future<void> initPlatformState() async {
@@ -88,29 +82,34 @@ class _MyBrowser extends State<MyBrowser> {
         ),
       );
     } else {
-      return Expanded(
-          child: Card(
-              color: Colors.transparent,
-              elevation: 0,
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              child: Stack(
-                children: [
-                  Webview(
-                    _controller,
-                    permissionRequested: _onPermissionRequested,
-                  ),
-                  StreamBuilder<LoadingState>(
-                      stream: _controller.loadingState,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data == LoadingState.loading) {
-                          return const LinearProgressIndicator();
-                        } else {
-                          return const SizedBox();
-                        }
-                      }),
-                ],
-              )));
+      return Column(
+        children: [
+          const TitleBar(),
+          Expanded(
+              child: Card(
+                  color: Colors.transparent,
+                  elevation: 0,
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  child: Stack(
+                    children: [
+                      Webview(
+                        _controller,
+                        permissionRequested: _onPermissionRequested,
+                      ),
+                      StreamBuilder<LoadingState>(
+                          stream: _controller.loadingState,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData &&
+                                snapshot.data == LoadingState.loading) {
+                              return const LinearProgressIndicator();
+                            } else {
+                              return const SizedBox();
+                            }
+                          }),
+                    ],
+                  )))
+        ],
+      );
     }
   }
 
