@@ -3,11 +3,14 @@ import 'dart:io';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:system_tray/system_tray.dart';
-import 'package:willo/my_browser.dart';
+import 'package:willo_desktop/my_browser.dart';
 import 'package:window_manager/window_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
+final localhostServer = InAppLocalhostServer(documentRoot: 'assets');
+WebViewEnvironment? webViewEnvironment;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Khởi tạo window manager
@@ -171,7 +174,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      home: const MyBrowser(),
+      home: const InAppWebViewExampleScreen(),
     );
   }
 }
@@ -199,32 +202,6 @@ class TitleBar extends StatelessWidget {
               child: MoveWindow(),
             ),
             const WindowButtons()
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ContentBody extends StatelessWidget {
-  final SystemTray systemTray;
-  final Menu menu;
-
-  const ContentBody({
-    super.key,
-    required this.systemTray,
-    required this.menu,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        color: const Color(0xFFFFFFFF),
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
-          children: const [
-            MyBrowser(),
           ],
         ),
       ),

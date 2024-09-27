@@ -1,158 +1,162 @@
+import 'dart:collection';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:async';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-import 'package:webview_windows/webview_windows.dart';
-import 'package:willo/main.dart';
-import 'package:window_manager/window_manager.dart';
+import 'main.dart';
 
-class MyBrowser extends StatefulWidget {
-  const MyBrowser({super.key});
+class InAppWebViewExampleScreen extends StatefulWidget {
+  const InAppWebViewExampleScreen({super.key});
 
   @override
-  State<MyBrowser> createState() => _MyBrowser();
+  _InAppWebViewExampleScreenState createState() =>
+      _InAppWebViewExampleScreenState();
 }
 
-class _MyBrowser extends State<MyBrowser> {
-  final _controller = WebviewController();
-  final _textController = TextEditingController();
-  final List<StreamSubscription> _subscriptions = [];
-  final bool _isWebviewSuspended = false;
+class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
+  final GlobalKey webViewKey = GlobalKey();
+
+  InAppWebViewController? webViewController;
+  InAppWebViewSettings settings = InAppWebViewSettings(
+      isInspectable: kDebugMode,
+      mediaPlaybackRequiresUserGesture: false,
+      allowsInlineMediaPlayback: true,
+      iframeAllow: "camera; microphone",
+      iframeAllowFullscreen: true);
+
+  PullToRefreshController? pullToRefreshController;
+
+  late ContextMenu contextMenu;
+  String url = "";
+  double progress = 0;
+  final urlController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-  }
 
-  Future<void> initPlatformState() async {
-    try {
-      await _controller.initialize();
-      _subscriptions.add(_controller.url.listen((url) {
-        _textController.text = url;
-      }));
-
-      _subscriptions
-          .add(_controller.containsFullScreenElementChanged.listen((flag) {
-        debugPrint('Contains fullscreen element: $flag');
-        windowManager.setFullScreen(flag);
-      }));
-
-      await _controller.setBackgroundColor(Colors.transparent);
-      await _controller.setPopupWindowPolicy(WebviewPopupWindowPolicy.deny);
-      // await _controller.loadUrl('https://flutter.dev');
-      await _controller.loadUrl('http://winitechvina.iptime.org/chat');
-
-      if (!mounted) return;
-      setState(() {});
-    } on PlatformException catch (e) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-                  title: const Text('Error'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Code: ${e.code}'),
-                      Text('Message: ${e.message}'),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      child: const Text('Continue'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    )
-                  ],
-                ));
-      });
-    }
-  }
-
-  Widget compositeView() {
-    if (!_controller.value.isInitialized) {
-      return const Text(
-        'Not Initialized',
-        style: TextStyle(
-          fontSize: 24.0,
-          fontWeight: FontWeight.w900,
-        ),
-      );
-    } else {
-      return Column(
-        children: [
-          const TitleBar(),
-          Expanded(
-              child: Card(
-                  color: Colors.transparent,
-                  elevation: 0,
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  child: Stack(
-                    children: [
-                      Webview(
-                        _controller,
-                        permissionRequested: _onPermissionRequested,
-                      ),
-                      StreamBuilder<LoadingState>(
-                          stream: _controller.loadingState,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData &&
-                                snapshot.data == LoadingState.loading) {
-                              return const LinearProgressIndicator();
-                            } else {
-                              return const SizedBox();
-                            }
-                          }),
-                    ],
-                  )))
+    contextMenu = ContextMenu(
+        menuItems: [
+          ContextMenuItem(
+              id: 1,
+              title: "Special",
+              action: () async {
+                print("Menu item Special clicked!");
+                print(await webViewController?.getSelectedText());
+                await webViewController?.clearFocus();
+              })
         ],
-      );
-    }
+        settings: ContextMenuSettings(hideDefaultSystemContextMenuItems: false),
+        onCreateContextMenu: (hitTestResult) async {
+          print("onCreateContextMenu");
+          print(hitTestResult.extra);
+          print(await webViewController?.getSelectedText());
+        },
+        onHideContextMenu: () {
+          print("onHideContextMenu");
+        },
+        onContextMenuActionItemClicked: (contextMenuItemClicked) async {
+          var id = contextMenuItemClicked.id;
+          print(
+              "onContextMenuActionItemClicked: $id ${contextMenuItemClicked.title}");
+        });
+
+    pullToRefreshController = kIsWeb ||
+            ![TargetPlatform.iOS, TargetPlatform.android]
+                .contains(defaultTargetPlatform)
+        ? null
+        : PullToRefreshController(
+            settings: PullToRefreshSettings(
+              color: Colors.blue,
+            ),
+            onRefresh: () async {
+              if (defaultTargetPlatform == TargetPlatform.android) {
+                webViewController?.reload();
+              } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+                webViewController?.loadUrl(
+                    urlRequest:
+                        URLRequest(url: await webViewController?.getUrl()));
+              }
+            },
+          );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: compositeView(),
+        body: SafeArea(
+            child: Column(children: <Widget>[
+      const TitleBar(),
+      Expanded(
+        child: Stack(
+          children: [
+            InAppWebView(
+              key: webViewKey,
+              webViewEnvironment: webViewEnvironment,
+              initialUrlRequest: URLRequest(
+                  url: WebUri('http://winitechvina.iptime.org/chat')),
+              initialUserScripts: UnmodifiableListView<UserScript>([]),
+              initialSettings: settings,
+              contextMenu: contextMenu,
+              pullToRefreshController: pullToRefreshController,
+              onWebViewCreated: (controller) async {
+                webViewController = controller;
+              },
+              onLoadStart: (controller, url) async {
+                setState(() {
+                  this.url = url.toString();
+                  urlController.text = this.url;
+                });
+              },
+              onPermissionRequest: (controller, request) async {
+                return PermissionResponse(
+                    resources: request.resources,
+                    action: PermissionResponseAction.GRANT);
+              },
+              shouldOverrideUrlLoading: (controller, navigationAction) async {
+                return NavigationActionPolicy.ALLOW;
+              },
+              onLoadStop: (controller, url) async {
+                pullToRefreshController?.endRefreshing();
+                setState(() {
+                  this.url = url.toString();
+                  urlController.text = this.url;
+                });
+              },
+              onReceivedError: (controller, request, error) {
+                pullToRefreshController?.endRefreshing();
+              },
+              onProgressChanged: (controller, progress) {
+                if (progress == 100) {
+                  pullToRefreshController?.endRefreshing();
+                }
+                setState(() {
+                  this.progress = progress / 100;
+                  urlController.text = url;
+                });
+              },
+              onUpdateVisitedHistory: (controller, url, isReload) {
+                setState(() {
+                  this.url = url.toString();
+                  urlController.text = this.url;
+                });
+              },
+              onConsoleMessage: (controller, consoleMessage) {
+                print(consoleMessage);
+              },
+            ),
+            progress < 1.0
+                ? LinearProgressIndicator(value: progress)
+                : Container(),
+          ],
+        ),
       ),
-    );
-  }
-
-  Future<WebviewPermissionDecision> _onPermissionRequested(
-      String url, WebviewPermissionKind kind, bool isUserInitiated) async {
-    final decision = await showDialog<WebviewPermissionDecision>(
-      context: navigatorKey.currentContext!,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('WebView permission requested'),
-        content: Text('WebView has requested permission \'$kind\''),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () =>
-                Navigator.pop(context, WebviewPermissionDecision.deny),
-            child: const Text('Deny'),
-          ),
-          TextButton(
-            onPressed: () =>
-                Navigator.pop(context, WebviewPermissionDecision.allow),
-            child: const Text('Allow'),
-          ),
-        ],
-      ),
-    );
-
-    return decision ?? WebviewPermissionDecision.none;
-  }
-
-  @override
-  void dispose() {
-    for (var s in _subscriptions) {
-      s.cancel();
-    }
-    _controller.dispose();
-    super.dispose();
+    ])));
   }
 }

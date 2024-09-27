@@ -1,4 +1,4 @@
-package com.example.willo
+package com.example.willo_desktop
 
 import io.flutter.embedding.android.FlutterActivity
 

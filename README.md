@@ -1,4 +1,4 @@
-# willo
+# willo_desktop
 
 A new Flutter project.
 

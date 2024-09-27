@@ -1,6 +1,6 @@
 {
-    "name": "willo",
-    "short_name": "willo",
+    "name": "willo_desktop",
+    "short_name": "willo_desktop",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
