@@ -83,7 +83,7 @@ class _MyAppState extends State<MyApp> {
     // We first init the systray menu and then add the menu entries
     await _systemTray.initSystemTray(iconPath: getTrayImagePath('app_icon'));
     _systemTray.setTitle("system tray");
-    _systemTray.setToolTip("How to use system tray with Flutter");
+    _systemTray.setToolTip("WillO");
 
     // handle system tray event
     _systemTray.registerSystemTrayEventHandler((eventName) {
