@@ -227,17 +227,28 @@ class WindowButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        MinimizeWindowButton(colors: buttonColors),
-        MaximizeWindowButton(colors: buttonColors),
-        CloseWindowButton(
-          colors: closeButtonColors,
-          onPressed: () {
-            appWindow.hide();
-          },
+    var widthS = MediaQuery.of(context).size.width;
+    return SizedBox(
+      width: widthS,
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        const Text(
+          '  WillO',
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black45),
         ),
-      ],
+        Row(
+          children: [
+            MinimizeWindowButton(colors: buttonColors),
+            MaximizeWindowButton(colors: buttonColors),
+            CloseWindowButton(
+              colors: closeButtonColors,
+              onPressed: () {
+                appWindow.hide();
+              },
+            ),
+          ],
+        )
+      ]),
     );
   }
 }

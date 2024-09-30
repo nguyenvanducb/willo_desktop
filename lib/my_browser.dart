@@ -77,8 +77,10 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                 webViewController?.reload();
               } else if (defaultTargetPlatform == TargetPlatform.iOS) {
                 webViewController?.loadUrl(
-                    urlRequest:
-                        URLRequest(url: await webViewController?.getUrl()));
+                    urlRequest: URLRequest(
+                        url: await webViewController?.getUrl(),
+                        cachePolicy: URLRequestCachePolicy
+                            .RELOAD_REVALIDATING_CACHE_DATA));
               }
             },
           );
