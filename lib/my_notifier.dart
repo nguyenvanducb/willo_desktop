@@ -35,7 +35,7 @@ class UserData extends ChangeNotifier {
                 dataChat['message']['contentType'] == 'FILE') {
               sendMyOwnTemplate(
                   content: dataChat['message']['content'],
-                  tittle: dataChat['message']['senderId']);
+                  tittle: dataChat['message']['senderName']);
             }
           } catch (e) {}
         } catch (e) {}
