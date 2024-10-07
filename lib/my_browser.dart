@@ -1,8 +1,9 @@
 import 'dart:collection';
-import 'dart:io';
+import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:willo_desktop/my_notifier.dart';
 
 import 'main.dart';
 
@@ -18,6 +19,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
   final GlobalKey webViewKey = GlobalKey();
 
   InAppWebViewController? webViewController;
+  CookieManager cookieManager = CookieManager();
 
   InAppWebViewSettings settings = InAppWebViewSettings(
       isInspectable: kDebugMode,
@@ -103,8 +105,8 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
             InAppWebView(
               key: webViewKey,
               webViewEnvironment: webViewEnvironment,
-              initialUrlRequest: URLRequest(
-                  url: WebUri('http://winitechvina.iptime.org/chat')),
+              initialUrlRequest:
+                  URLRequest(url: WebUri('https://msg.winitech.com/chat')),
               initialUserScripts: UnmodifiableListView<UserScript>([]),
               initialSettings: settings,
               contextMenu: contextMenu,
@@ -132,6 +134,15 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                   this.url = url.toString();
                   urlController.text = this.url;
                 });
+
+                WebUri webUri = url!;
+                List<Cookie> cookies =
+                    await cookieManager.getCookies(url: webUri);
+                for (var cookie in cookies) {
+                  print('Cookie: ${cookie.name} = ${cookie.value}');
+                }
+                Provider.of<UserData>(context, listen: false)
+                    .connectWebSocket(cookies[0].value);
               },
               onReceivedError: (controller, request, error) {
                 pullToRefreshController?.endRefreshing();

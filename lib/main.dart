@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:provider/provider.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:willo_desktop/my_browser.dart';
+import 'package:willo_desktop/my_notifier.dart';
 import 'package:window_manager/window_manager.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -26,8 +28,17 @@ void main() async {
     await windowManager.show();
     await windowManager.focus();
   });
+  // runApp(
+  //   const MyApp(),
+  // );
   runApp(
-    const MyApp(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserData()),
+        // Cung cấp các provider khác nếu cần
+      ],
+      child: const MyApp(),
+    ),
   );
 
   doWhenWindowReady(() {
