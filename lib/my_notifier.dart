@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -16,7 +17,7 @@ class UserData extends ChangeNotifier {
   };
 
   final _winNotifyPlugin = WindowsNotification(
-      applicationId: r"C:\Users\Admin\AppData\Roaming\willO\willo_desktop.exe");
+      applicationId: '${Directory.current.path}\\willo_desktop.exe');
 
   void connectWebSocket(token) {
     final channel = WebSocketChannel.connect(
