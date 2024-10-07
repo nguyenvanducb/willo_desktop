@@ -30,7 +30,8 @@ class UserData extends ChangeNotifier {
           notifyListeners();
           try {
             if (dataChat['message']['contentType'] == 'TEXT' ||
-                dataChat['message']['contentType'] == 'IMAGE') {
+                dataChat['message']['contentType'] == 'IMAGE' ||
+                dataChat['message']['contentType'] == 'FILE') {
               sendMyOwnTemplate(
                   content: dataChat['message']['content'],
                   tittle: dataChat['message']['senderId']);
