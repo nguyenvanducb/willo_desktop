@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:willo_desktop/my_browser.dart';
 import 'package:willo_desktop/my_notifier.dart';
+import 'package:willo_desktop/myclose.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 
@@ -22,13 +23,15 @@ void main() async {
 
   // Cấu hình cửa sổ khi ứng dụng khởi động
   windowManager.waitUntilReadyToShow().then((_) async {
-    // Ẩn các nút Close, Minimize, Maximize
-    await windowManager.setClosable(false);
-    await windowManager.setMinimizable(false);
-    await windowManager.setMaximizable(false);
-    await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-    await windowManager.show();
-    await windowManager.focus();
+    windowManager.setPreventClose(true);
+    windowManager.addListener(MyWindowListener());
+    //   // Ẩn các nút Close, Minimize, Maximize
+    //   await windowManager.setClosable(false);
+    //   await windowManager.setMinimizable(false);
+    //   await windowManager.setMaximizable(false);
+    //   await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    //   await windowManager.show();
+    //   await windowManager.focus();
   });
   // runApp(
   //   const MyApp(),
@@ -47,7 +50,7 @@ void main() async {
     final win = appWindow;
     win.minSize = const Size(600, 450);
     win.alignment = Alignment.center;
-    win.title = "How to use system tray with Flutter";
+    win.title = "WillO";
     win.show();
   });
 }
