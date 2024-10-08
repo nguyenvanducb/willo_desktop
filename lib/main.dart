@@ -65,7 +65,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WindowListener {
   final AppWindow _appWindow = AppWindow();
   final SystemTray _systemTray = SystemTray();
   final Menu _menuMain = Menu();
@@ -80,6 +80,20 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initSystemTray();
+    windowManager.addListener(this);
+  }
+
+  @override
+  void onWindowFocus() {
+    // Cửa sổ có tiêu điểm
+    print("Cửa sổ đã được lấy tiêu điểm");
+    // _handleWindowActivated();
+  }
+
+  @override
+  void onWindowUnfocus() {
+    // Cửa sổ mất tiêu điểm
+    print("Cửa sổ đã mất tiêu điểm");
   }
 
   @override
