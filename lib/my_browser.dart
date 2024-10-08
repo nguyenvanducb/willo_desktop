@@ -98,7 +98,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
     return Scaffold(
         body: SafeArea(
             child: Column(children: <Widget>[
-      const TitleBar(),
+      // const TitleBar(),
       Expanded(
         child: Stack(
           children: [
