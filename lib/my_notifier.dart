@@ -3,9 +3,11 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:willo_desktop/main.dart';
 import 'package:willo_desktop/url.dart';
 import 'package:windows_notification/notification_message.dart';
 import 'package:windows_notification/windows_notification.dart';
+import 'package:windows_taskbar/windows_taskbar.dart';
 
 bool isNetwork = true;
 
@@ -62,6 +64,12 @@ class UserData extends ChangeNotifier {
   }
 
   void sendMyOwnTemplate({String content = '', tittle = ''}) {
+    if (!isNotify) {
+      isNotify = true;
+      WindowsTaskbar.setOverlayIcon(
+          ThumbnailToolbarAssetIcon('assets/circle.ico'));
+    }
+
     /// image tag src must be set
     /// for actions make sure your argruments contains `:` like "action:open_center"
     String template = '''

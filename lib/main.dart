@@ -9,9 +9,11 @@ import 'package:system_tray/system_tray.dart';
 import 'package:willo_desktop/my_browser.dart';
 import 'package:willo_desktop/my_notifier.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:windows_taskbar/windows_taskbar.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final localhostServer = InAppLocalhostServer(documentRoot: 'assets');
+bool isNotify = false, windowFocus = false;
 WebViewEnvironment? webViewEnvironment;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -87,12 +89,14 @@ class _MyAppState extends State<MyApp> with WindowListener {
   void onWindowFocus() {
     // Cửa sổ có tiêu điểm
     print("Cửa sổ đã được lấy tiêu điểm");
-    // _handleWindowActivated();
+    isNotify = false;
+    windowFocus = true;
+    WindowsTaskbar.resetOverlayIcon();
   }
 
   @override
   void onWindowUnfocus() {
-    // Cửa sổ mất tiêu điểm
+    windowFocus = false;
     print("Cửa sổ đã mất tiêu điểm");
   }
 
