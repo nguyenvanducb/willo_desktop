@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:willo_desktop/main.dart';
+import 'package:willo_desktop/my_browser.dart';
 import 'package:willo_desktop/url.dart';
 import 'package:windows_notification/notification_message.dart';
 import 'package:windows_notification/windows_notification.dart';
@@ -32,12 +33,15 @@ class UserData extends ChangeNotifier {
           dataChat['isSocket'] = true;
           notifyListeners();
           try {
-            if (dataChat['message']['contentType'] == 'TEXT' ||
-                dataChat['message']['contentType'] == 'IMAGE' ||
-                dataChat['message']['contentType'] == 'FILE') {
-              sendMyOwnTemplate(
-                  content: dataChat['message']['content'],
-                  tittle: dataChat['message']['senderName']);
+            if (dataChat['message']['senderId'] !=
+                dataUserGB['user']['userId']) {
+              if (dataChat['message']['contentType'] == 'TEXT' ||
+                  dataChat['message']['contentType'] == 'IMAGE' ||
+                  dataChat['message']['contentType'] == 'FILE') {
+                sendMyOwnTemplate(
+                    content: dataChat['message']['content'],
+                    tittle: dataChat['message']['senderName']);
+              }
             }
           } catch (e) {}
         } catch (e) {}

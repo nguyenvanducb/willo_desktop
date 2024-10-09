@@ -22,6 +22,7 @@ void main() async {
   await windowManager.ensureInitialized();
 
   // Cấu hình cửa sổ khi ứng dụng khởi động
+  windowManager.setBackgroundColor(backgroundEndColor);
   windowManager.waitUntilReadyToShow().then((_) async {
     windowManager.setPreventClose(true);
     windowManager.addListener(MyWindowListener());

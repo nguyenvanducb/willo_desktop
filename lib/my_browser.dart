@@ -1,11 +1,16 @@
 import 'dart:collection';
+import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:willo_desktop/api/api_manager.dart';
+import 'package:willo_desktop/api/http_manager.dart';
 import 'package:willo_desktop/my_notifier.dart';
-
+import 'package:willo_desktop/share_preferences/data_center.dart';
 import 'main.dart';
+
+dynamic dataUserGB = '';
 
 class InAppWebViewExampleScreen extends StatefulWidget {
   const InAppWebViewExampleScreen({super.key});
@@ -17,6 +22,7 @@ class InAppWebViewExampleScreen extends StatefulWidget {
 
 class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
   final GlobalKey webViewKey = GlobalKey();
+  APIManager apiManager = APIManager(HTTPManager(Dio()));
 
   InAppWebViewController? webViewController;
   CookieManager cookieManager = CookieManager();
@@ -143,6 +149,8 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                 }
                 Provider.of<UserData>(context, listen: false)
                     .connectWebSocket(cookies[0].value);
+                await DataCenter.shared()?.saveToken(cookies[0].value);
+                getMe();
               },
               onReceivedError: (controller, request, error) {
                 pullToRefreshController?.endRefreshing();
@@ -173,5 +181,14 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
         ),
       ),
     ])));
+  }
+
+  getMe() async {
+    var data = await apiManager.getMe(data: {});
+    if (data.success) {
+      setState(() {
+        dataUserGB = data.data;
+      });
+    }
   }
 }
