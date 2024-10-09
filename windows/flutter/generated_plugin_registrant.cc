@@ -13,6 +13,7 @@
 #include <url_launcher_windows/url_launcher_windows.h>
 #include <window_manager/window_manager_plugin.h>
 #include <windows_notification/windows_notification_plugin_c_api.h>
+#include <windows_single_instance/windows_single_instance_plugin.h>
 #include <windows_taskbar/windows_taskbar_plugin.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
@@ -30,6 +31,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("WindowManagerPlugin"));
   WindowsNotificationPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("WindowsNotificationPluginCApi"));
+  WindowsSingleInstancePluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("WindowsSingleInstancePlugin"));
   WindowsTaskbarPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("WindowsTaskbarPlugin"));
 }

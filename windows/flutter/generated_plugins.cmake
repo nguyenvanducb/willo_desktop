@@ -10,6 +10,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   url_launcher_windows
   window_manager
   windows_notification
+  windows_single_instance
   windows_taskbar
 )
 

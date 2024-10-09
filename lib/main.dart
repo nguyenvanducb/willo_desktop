@@ -11,13 +11,16 @@ import 'package:willo_desktop/my_notifier.dart';
 import 'package:willo_desktop/myclose.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
+import 'package:windows_single_instance/windows_single_instance.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final localhostServer = InAppLocalhostServer(documentRoot: 'assets');
 bool isNotify = false, windowFocus = false;
 WebViewEnvironment? webViewEnvironment;
-void main() async {
+void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+  await WindowsSingleInstance.ensureSingleInstance(args, "instance_checker",
+      onSecondWindow: (args) {});
   // Khởi tạo window manager
   await windowManager.ensureInitialized();
 
@@ -34,9 +37,6 @@ void main() async {
     //   await windowManager.show();
     //   await windowManager.focus();
   });
-  // runApp(
-  //   const MyApp(),
-  // );
   runApp(
     MultiProvider(
       providers: [
