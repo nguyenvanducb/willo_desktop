@@ -1,9 +1,11 @@
 import 'dart:collection';
+import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:willo_desktop/api/api_manager.dart';
 import 'package:willo_desktop/api/http_manager.dart';
 import 'package:willo_desktop/my_notifier.dart';
@@ -174,9 +176,25 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                 print(consoleMessage);
               },
             ),
-            progress < 1.0
-                ? LinearProgressIndicator(value: progress)
-                : Container(),
+            Positioned(
+                bottom: 5,
+                left: 3,
+                child: IconButton(
+                    onPressed: () async {
+                      WebUri webUri =
+                          // ignore: prefer_interpolation_to_compose_strings
+                          WebUri('https://msg.winitech.com/chat' + getTocken());
+                      if (await canLaunchUrl(webUri)) {
+                        await launchUrl(
+                          webUri,
+                        );
+                      }
+                    },
+                    icon: const Icon(
+                      size: 35,
+                      Icons.web,
+                      color: Colors.orange,
+                    )))
           ],
         ),
       ),
@@ -189,6 +207,15 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
       setState(() {
         dataUserGB = data.data;
       });
+    }
+  }
+
+  getTocken() {
+    try {
+      // ignore: prefer_interpolation_to_compose_strings
+      return '?token=' + dataUserGB['user']['accessToken'];
+    } catch (e) {
+      return '';
     }
   }
 }
