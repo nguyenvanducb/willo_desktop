@@ -176,6 +176,9 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                 print(consoleMessage);
               },
             ),
+            progress < 1.0
+                ? LinearProgressIndicator(value: progress)
+                : Container(),
             Positioned(
                 bottom: 5,
                 left: 3,
