@@ -101,86 +101,71 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: SafeArea(
-            child: Column(children: <Widget>[
-      // const TitleBar(),
-      Expanded(
-        child: Stack(
-          children: [
-            InAppWebView(
-              key: webViewKey,
-              webViewEnvironment: webViewEnvironment,
-              initialUrlRequest:
-                  URLRequest(url: WebUri('https://msg.winitech.com/chat')),
-              initialUserScripts: UnmodifiableListView<UserScript>([]),
-              initialSettings: settings,
-              contextMenu: contextMenu,
-              pullToRefreshController: pullToRefreshController,
-              onWebViewCreated: (controller) async {
-                webViewController = controller;
-              },
-              onLoadStart: (controller, url) async {
-                setState(() {
-                  this.url = url.toString();
-                  urlController.text = this.url;
-                });
-              },
-              onPermissionRequest: (controller, request) async {
-                return PermissionResponse(
-                    resources: request.resources,
-                    action: PermissionResponseAction.GRANT);
-              },
-              shouldOverrideUrlLoading: (controller, navigationAction) async {
-                return NavigationActionPolicy.ALLOW;
-              },
-              onLoadStop: (controller, url) async {
-                pullToRefreshController?.endRefreshing();
-                setState(() {
-                  this.url = url.toString();
-                  urlController.text = this.url;
-                });
+    return InAppWebView(
+      key: webViewKey,
+      webViewEnvironment: webViewEnvironment,
+      initialUrlRequest:
+          URLRequest(url: WebUri('https://msg.winitech.com/chat')),
+      initialUserScripts: UnmodifiableListView<UserScript>([]),
+      initialSettings: settings,
+      contextMenu: contextMenu,
+      pullToRefreshController: pullToRefreshController,
+      onWebViewCreated: (controller) async {
+        webViewController = controller;
+      },
+      onLoadStart: (controller, url) async {
+        setState(() {
+          this.url = url.toString();
+          urlController.text = this.url;
+        });
+      },
+      onPermissionRequest: (controller, request) async {
+        return PermissionResponse(
+            resources: request.resources,
+            action: PermissionResponseAction.GRANT);
+      },
+      shouldOverrideUrlLoading: (controller, navigationAction) async {
+        return NavigationActionPolicy.ALLOW;
+      },
+      onLoadStop: (controller, url) async {
+        pullToRefreshController?.endRefreshing();
+        setState(() {
+          this.url = url.toString();
+          urlController.text = this.url;
+        });
 
-                WebUri webUri = url!;
-                List<Cookie> cookies =
-                    await cookieManager.getCookies(url: webUri);
-                for (var cookie in cookies) {
-                  print('Cookie: ${cookie.name} = ${cookie.value}');
-                }
-                Provider.of<UserData>(context, listen: false)
-                    .connectWebSocket(cookies[0].value);
-                await DataCenter.shared()?.saveToken(cookies[0].value);
-                getMe();
-              },
-              onReceivedError: (controller, request, error) {
-                pullToRefreshController?.endRefreshing();
-              },
-              onProgressChanged: (controller, progress) {
-                if (progress == 100) {
-                  pullToRefreshController?.endRefreshing();
-                }
-                setState(() {
-                  this.progress = progress / 100;
-                  urlController.text = url;
-                });
-              },
-              onUpdateVisitedHistory: (controller, url, isReload) {
-                setState(() {
-                  this.url = url.toString();
-                  urlController.text = this.url;
-                });
-              },
-              onConsoleMessage: (controller, consoleMessage) {
-                print(consoleMessage);
-              },
-            ),
-            progress < 1.0
-                ? LinearProgressIndicator(value: progress)
-                : Container(),
-          ],
-        ),
-      ),
-    ])));
+        WebUri webUri = url!;
+        List<Cookie> cookies = await cookieManager.getCookies(url: webUri);
+        for (var cookie in cookies) {
+          print('Cookie: ${cookie.name} = ${cookie.value}');
+        }
+        Provider.of<UserData>(context, listen: false)
+            .connectWebSocket(cookies[0].value);
+        await DataCenter.shared()?.saveToken(cookies[0].value);
+        getMe();
+      },
+      onReceivedError: (controller, request, error) {
+        pullToRefreshController?.endRefreshing();
+      },
+      onProgressChanged: (controller, progress) {
+        if (progress == 100) {
+          pullToRefreshController?.endRefreshing();
+        }
+        setState(() {
+          this.progress = progress / 100;
+          urlController.text = url;
+        });
+      },
+      onUpdateVisitedHistory: (controller, url, isReload) {
+        setState(() {
+          this.url = url.toString();
+          urlController.text = this.url;
+        });
+      },
+      onConsoleMessage: (controller, consoleMessage) {
+        print(consoleMessage);
+      },
+    );
   }
 
   getMe() async {
