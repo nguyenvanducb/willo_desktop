@@ -1,14 +1,11 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
-import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:willo_desktop/main.dart';
 import 'package:willo_desktop/my_browser.dart';
 import 'package:willo_desktop/url.dart';
-import 'package:win32/win32.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_notification/notification_message.dart';
 import 'package:windows_notification/windows_notification.dart';
@@ -38,13 +35,25 @@ class UserData extends ChangeNotifier {
           dataChat['isSocket'] = true;
           notifyListeners();
           try {
-            if (dataChat['message']['senderId'] !=
+            if (dataChat['type'] == 'REACTION_MESSAGE') {
+              if (dataChat['announcer']['userName'] !=
+                  dataUserGB['user']['userId']) {
+                sendMyOwnTemplate(
+                    content: dataChat['message']['respondent']
+                        [dataChat['announcer']['userId']],
+                    tittle: dataChat['announcer']['userName']);
+              }
+            } else if (dataChat['message']['senderId'] !=
                 dataUserGB['user']['userId']) {
               if (dataChat['message']['contentType'] == 'TEXT' ||
-                  dataChat['message']['contentType'] == 'IMAGE' ||
-                  dataChat['message']['contentType'] == 'FILE') {
+                  dataChat['message']['contentType'] == 'IMAGE') {
                 sendMyOwnTemplate(
                     content: dataChat['message']['content'],
+                    tittle: dataChat['message']['senderName']);
+              }
+              if (dataChat['message']['contentType'] == 'FILE') {
+                sendMyOwnTemplate(
+                    content: dataChat['message']['shortName'],
                     tittle: dataChat['message']['senderName']);
               }
             }
@@ -97,23 +106,11 @@ class UserData extends ChangeNotifier {
       "test1",
       group: "jj",
     );
-    _winNotifyPlugin
-        .showNotificationCustomTemplate(message, template)
-        .then((value) {
-      // Xử lý sau khi thông báo được hiển thị thành công
-      print("Thông báo đã được hiển thị!");
-    }).catchError((error) {
-      // Xử lý lỗi nếu có
-      print("Có lỗi xảy ra: $error");
+    _winNotifyPlugin.showNotificationCustomTemplate(message, template);
+    _winNotifyPlugin.initNotificationCallBack((s) async {
+      if (s.eventType == EventType.onActivate) {
+        await windowManager.show(inactive: true);
+      }
     });
-    _winNotifyPlugin
-        .initNotificationCallBack((NotificationCallBackDetails details) async {
-      print("Notification clicked: ${details.toString()}");
-      await windowManager.show(inactive: true);
-    });
-  }
-
-  void resetStateWindows() {
-    showWindows = false;
   }
 }
