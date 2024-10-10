@@ -143,16 +143,25 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                   urlController.text = this.url;
                 });
 
-                WebUri webUri = url!;
-                List<Cookie> cookies =
-                    await cookieManager.getCookies(url: webUri);
-                for (var cookie in cookies) {
-                  print('Cookie: ${cookie.name} = ${cookie.value}');
+                print(url);
+                try {
+                  List<Cookie> cookies =
+                      await cookieManager.getCookies(url: url!);
+                  for (var cookie in cookies) {
+                    print('Cookie: ${cookie.name} = ${cookie.value}');
+                  }
+                  Provider.of<UserData>(context, listen: false)
+                      .connectWebSocket(cookies[0].value);
+                  await DataCenter.shared()?.saveToken(cookies[0].value);
+                  getMe();
+                } catch (e) {
+                  String token = url.toString();
+                  token = token.replaceFirst(
+                      'https://msg.winitech.com/?token=', '');
+                  Provider.of<UserData>(context, listen: false)
+                      .connectWebSocket(token);
+                  await DataCenter.shared()?.saveToken(token);
                 }
-                Provider.of<UserData>(context, listen: false)
-                    .connectWebSocket(cookies[0].value);
-                await DataCenter.shared()?.saveToken(cookies[0].value);
-                getMe();
               },
               onReceivedError: (controller, request, error) {
                 pullToRefreshController?.endRefreshing();
