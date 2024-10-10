@@ -1,5 +1,5 @@
 // ignore_for_file: constant_identifier_names
-const String URL_RABBITMQ = 'ws://winitechvina.iptime.org:15674/ws';
+const String URL_RABBITMQ = 'wss://winitechvina.iptime.org:15674/ws';
 const String REACT_APP_PROJECT_MANAGEMENT_API_URL =
     "https://msgauth.winitech.com:7001/api/";
 

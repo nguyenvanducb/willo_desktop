@@ -36,7 +36,9 @@ class UserData extends ChangeNotifier {
           notifyListeners();
           try {
             if (dataChat['type'] == 'REACTION_MESSAGE') {
-              if (dataChat['announcer']['userName'] !=
+              print(dataChat['announcer']['userId']);
+              print(dataUserGB['user']['userId']);
+              if (dataChat['announcer']['userId'] !=
                   dataUserGB['user']['userId']) {
                 sendMyOwnTemplate(
                     content: dataChat['message']['respondent']
