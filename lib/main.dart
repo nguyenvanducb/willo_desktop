@@ -193,10 +193,12 @@ class _MyAppState extends State<MyApp> with WindowListener {
           image: getImagePath('app_icon'),
           onClicked: (menuItem) => _appWindow.hide()),
       MenuItemLabel(
-        label: 'Exit',
-        image: getImagePath('app_icon'),
-        onClicked: (menuItem) => _appWindow.close(),
-      ),
+          label: 'Exit',
+          image: getImagePath('app_icon'),
+          onClicked: (menuItem) {
+            windowManager.setPreventClose(false);
+            _appWindow.close();
+          }),
     ]);
 
     _systemTray.setContextMenu(_menuMain);
