@@ -36,14 +36,15 @@ class UserData extends ChangeNotifier {
           notifyListeners();
           try {
             if (dataChat['type'] == 'REACTION_MESSAGE') {
-              print(dataChat['announcer']['userId']);
-              print(dataUserGB['user']['userId']);
               if (dataChat['announcer']['userId'] !=
                   dataUserGB['user']['userId']) {
-                sendMyOwnTemplate(
-                    content: dataChat['message']['respondent']
-                        [dataChat['announcer']['userId']],
-                    tittle: dataChat['announcer']['userName']);
+                if (dataChat['message']['senderId'] ==
+                    dataUserGB['user']['userId']) {
+                  sendMyOwnTemplate(
+                      content: dataUserGB["languageMap"]
+                          ["message.event.reaction"],
+                      tittle: dataChat['announcer']['userName']);
+                }
               }
             } else if (dataChat['message']['senderId'] !=
                 dataUserGB['user']['userId']) {

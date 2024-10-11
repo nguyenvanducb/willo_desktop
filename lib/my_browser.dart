@@ -150,17 +150,12 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                   for (var cookie in cookies) {
                     print('Cookie: ${cookie.name} = ${cookie.value}');
                   }
-                  Provider.of<UserData>(context, listen: false)
-                      .connectWebSocket(cookies[0].value);
-                  await DataCenter.shared()?.saveToken(cookies[0].value);
-                  getMe();
+                  notify(cookies[0].value);
                 } catch (e) {
                   String token = url.toString();
                   token = token.replaceFirst(
                       'https://msg.winitech.com/?token=', '');
-                  Provider.of<UserData>(context, listen: false)
-                      .connectWebSocket(token);
-                  await DataCenter.shared()?.saveToken(token);
+                  notify(token);
                 }
               },
               onReceivedError: (controller, request, error) {
@@ -211,6 +206,13 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
         ),
       ),
     ])));
+  }
+
+  notify(token) async {
+    print('kkkkkkkkkkkkk\n$token');
+    Provider.of<UserData>(context, listen: false).connectWebSocket(token);
+    await DataCenter.shared()?.saveToken(token);
+    getMe();
   }
 
   getMe() async {
