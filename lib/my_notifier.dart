@@ -35,30 +35,44 @@ class UserData extends ChangeNotifier {
           dataChat['isSocket'] = true;
           notifyListeners();
           try {
-            if (dataChat['type'] == 'REACTION_MESSAGE') {
-              if (dataChat['announcer']['userId'] !=
-                  dataUserGB['user']['userId']) {
-                if (dataChat['message']['senderId'] ==
+            switch (dataChat['type']) {
+              case 'REACTION_MESSAGE':
+                if (dataChat['announcer']['userId'] !=
+                    dataUserGB['user']['userId']) {
+                  if (dataChat['message']['senderId'] ==
+                      dataUserGB['user']['userId']) {
+                    sendMyOwnTemplate(
+                        content: dataUserGB["languageMap"]
+                            ["message.event.reaction"],
+                        tittle: dataChat['announcer']['userName']);
+                  }
+                }
+                break;
+              case 'SHARE_MESSAGE':
+                if (dataChat['announcer']['userId'] !=
                     dataUserGB['user']['userId']) {
                   sendMyOwnTemplate(
-                      content: dataUserGB["languageMap"]
-                          ["message.event.reaction"],
-                      tittle: dataChat['announcer']['userName']);
+                    tittle: dataChat['announcer']['userName'],
+                    content: dataUserGB["languageMap"]
+                        ["message.event.shareMessage"],
+                  );
                 }
-              }
-            } else if (dataChat['message']['senderId'] !=
-                dataUserGB['user']['userId']) {
-              if (dataChat['message']['contentType'] == 'TEXT' ||
-                  dataChat['message']['contentType'] == 'IMAGE') {
-                sendMyOwnTemplate(
-                    content: dataChat['message']['content'],
-                    tittle: dataChat['message']['senderName']);
-              }
-              if (dataChat['message']['contentType'] == 'FILE') {
-                sendMyOwnTemplate(
-                    content: dataChat['message']['shortName'],
-                    tittle: dataChat['message']['senderName']);
-              }
+                break;
+              default:
+                if (dataChat['message']['senderId'] !=
+                    dataUserGB['user']['userId']) {
+                  if (dataChat['message']['contentType'] == 'TEXT' ||
+                      dataChat['message']['contentType'] == 'IMAGE') {
+                    sendMyOwnTemplate(
+                        content: dataChat['message']['content'],
+                        tittle: dataChat['message']['senderName']);
+                  }
+                  if (dataChat['message']['contentType'] == 'FILE') {
+                    sendMyOwnTemplate(
+                        content: dataChat['message']['shortName'],
+                        tittle: dataChat['message']['senderName']);
+                  }
+                }
             }
           } catch (e) {}
         } catch (e) {}
