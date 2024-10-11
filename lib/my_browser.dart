@@ -103,6 +103,8 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var widthS = MediaQuery.of(context).size.width;
+    var heightS = MediaQuery.of(context).size.height;
     return Scaffold(
         body: SafeArea(
             child: Column(children: <Widget>[
@@ -183,25 +185,27 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
             progress < 1.0
                 ? LinearProgressIndicator(value: progress)
                 : Container(),
-            Positioned(
-                bottom: 5,
-                left: 3,
-                child: IconButton(
-                    onPressed: () async {
-                      WebUri webUri =
-                          // ignore: prefer_interpolation_to_compose_strings
-                          WebUri('https://msg.winitech.com/chat' + getTocken());
-                      if (await canLaunchUrl(webUri)) {
-                        await launchUrl(
-                          webUri,
-                        );
-                      }
-                    },
-                    icon: const Icon(
-                      size: 35,
-                      Icons.web,
-                      color: Colors.orange,
-                    )))
+            if (widthS > heightS * 1.3)
+              Positioned(
+                  bottom: 5,
+                  left: 3,
+                  child: IconButton(
+                      onPressed: () async {
+                        WebUri webUri =
+                            // ignore: prefer_interpolation_to_compose_strings
+                            WebUri(
+                                'https://msg.winitech.com/chat' + getTocken());
+                        if (await canLaunchUrl(webUri)) {
+                          await launchUrl(
+                            webUri,
+                          );
+                        }
+                      },
+                      icon: const Icon(
+                        size: 35,
+                        Icons.web,
+                        color: Colors.orange,
+                      )))
           ],
         ),
       ),
