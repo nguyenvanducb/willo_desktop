@@ -90,12 +90,13 @@ class _MyAppState extends State<MyApp> with WindowListener {
   }
 
   @override
-  void onWindowFocus() {
-    // Cửa sổ có tiêu điểm
+  void onWindowFocus() async {
     print("Cửa sổ đã được lấy tiêu điểm");
-    isNotify = false;
+    if (await windowManager.isFocused()) {
+      WindowsTaskbar.resetFlashTaskbarAppIcon();
+      WindowsTaskbar.resetOverlayIcon();
+    }
     windowFocus = true;
-    WindowsTaskbar.resetOverlayIcon();
   }
 
   @override

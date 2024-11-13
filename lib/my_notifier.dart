@@ -41,7 +41,7 @@ class UserData extends ChangeNotifier {
                     dataUserGB['user']['userId']) {
                   if (dataChat['message']['senderId'] ==
                       dataUserGB['user']['userId']) {
-                    sendMyOwnTemplate(
+                    showDynamicNotification(
                         content: dataUserGB["languageMap"]
                             ["message.event.reaction"],
                         tittle: dataChat['announcer']['userName']);
@@ -51,7 +51,7 @@ class UserData extends ChangeNotifier {
               case 'SHARE_MESSAGE':
                 if (dataChat['announcer']['userId'] !=
                     dataUserGB['user']['userId']) {
-                  sendMyOwnTemplate(
+                  showDynamicNotification(
                     tittle: dataChat['announcer']['userName'],
                     content: dataUserGB["languageMap"]
                         ["message.event.shareMessage"],
@@ -63,12 +63,12 @@ class UserData extends ChangeNotifier {
                     dataUserGB['user']['userId']) {
                   if (dataChat['message']['contentType'] == 'TEXT' ||
                       dataChat['message']['contentType'] == 'IMAGE') {
-                    sendMyOwnTemplate(
+                    showDynamicNotification(
                         content: dataChat['message']['content'],
                         tittle: dataChat['message']['senderName']);
                   }
                   if (dataChat['message']['contentType'] == 'FILE') {
-                    sendMyOwnTemplate(
+                    showDynamicNotification(
                         content: dataChat['message']['shortName'],
                         tittle: dataChat['message']['senderName']);
                   }
@@ -98,7 +98,7 @@ class UserData extends ChangeNotifier {
     };
   }
 
-  void sendMyOwnTemplate({String content = '', tittle = ''}) {
+  void showDynamicNotification({String content = '', tittle = ''}) {
     if (!isNotify) {
       isNotify = true;
       WindowsTaskbar.setOverlayIcon(
@@ -124,10 +124,17 @@ class UserData extends ChangeNotifier {
       group: "jj",
     );
     _winNotifyPlugin.showNotificationCustomTemplate(message, template);
+    WindowsTaskbar.setFlashTaskbarAppIcon(
+      mode: TaskbarFlashMode.all,
+      flashCount: 500,
+      timeout: const Duration(milliseconds: 100),
+    );
     _winNotifyPlugin.initNotificationCallBack((s) async {
       if (s.eventType == EventType.onActivate) {
         await windowManager.show(inactive: true);
+        print('ddddddddd');
       }
     });
+    WindowsTaskbar.resetFlashTaskbarAppIcon;
   }
 }
