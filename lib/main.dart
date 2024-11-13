@@ -87,6 +87,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
     super.initState();
     initSystemTray();
     windowManager.addListener(this);
+    windowManager.setPreventClose(true);
   }
 
   @override
@@ -169,7 +170,11 @@ class _MyAppState extends State<MyApp> with WindowListener {
         ),
         MenuSeparator(),
         MenuItemLabel(
-            label: 'Exit', onClicked: (menuItem) => _appWindow.close()),
+            label: 'Exit',
+            onClicked: (menuItem) {
+              windowManager.setPreventClose(false);
+              _appWindow.close();
+            }),
       ],
     );
 
