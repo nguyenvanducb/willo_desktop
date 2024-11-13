@@ -189,23 +189,27 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
               Positioned(
                   bottom: 5,
                   left: 3,
-                  child: IconButton(
+                  child: Tooltip(
+                    message: 'Web',
+                    textStyle: const TextStyle(
+                      color: Colors.yellow, // Màu chữ vàng cho tooltip
+                      fontWeight: FontWeight.w400,
+                    ),
+                    child: IconButton(
                       onPressed: () async {
-                        WebUri webUri =
-                            // ignore: prefer_interpolation_to_compose_strings
-                            WebUri(
-                                'https://msg.winitech.com/chat' + getTocken());
+                        WebUri webUri = WebUri(
+                            'https://msg.winitech.com/chat' + getTocken());
                         if (await canLaunchUrl(webUri)) {
-                          await launchUrl(
-                            webUri,
-                          );
+                          await launchUrl(webUri);
                         }
                       },
                       icon: const Icon(
-                        size: 35,
                         Icons.web,
+                        size: 35,
                         color: Colors.orange,
-                      )))
+                      ),
+                    ),
+                  ))
           ],
         ),
       ),
