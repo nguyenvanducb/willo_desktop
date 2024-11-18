@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:willo_desktop/api/api_manager.dart';
 import 'package:willo_desktop/api/http_manager.dart';
 import 'package:willo_desktop/my_notifier.dart';
+import 'package:willo_desktop/new_screen.dart';
 import 'package:willo_desktop/share_preferences/data_center.dart';
 import 'main.dart';
 
@@ -28,6 +29,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
 
   InAppWebViewController? webViewController;
   CookieManager cookieManager = CookieManager();
+  bool backUp = false;
 
   InAppWebViewSettings settings = InAppWebViewSettings(
       isInspectable: kDebugMode,
@@ -173,10 +175,21 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                 });
               },
               onUpdateVisitedHistory: (controller, url, isReload) {
-                setState(() {
-                  this.url = url.toString();
-                  urlController.text = this.url;
-                });
+                String domain = url!.host;
+                print('ducnguyenbbb');
+                print(domain);
+                if (domain == 'msg.winitech.com' ||
+                    domain == 'msgauth.winitech.com') {
+                  setState(() {
+                    backUp = false;
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                } else {
+                  setState(() {
+                    backUp = true;
+                  });
+                }
               },
               onConsoleMessage: (controller, consoleMessage) {
                 print(consoleMessage);
@@ -186,29 +199,40 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                 ? LinearProgressIndicator(value: progress)
                 : Container(),
             if (widthS > heightS * 1.3)
-              Positioned(
-                  bottom: 5,
-                  left: 3,
-                  child: Tooltip(
-                    message: 'Web',
-                    textStyle: const TextStyle(
-                      color: Colors.yellow, // Màu chữ vàng cho tooltip
-                      fontWeight: FontWeight.w400,
-                    ),
-                    child: IconButton(
-                      onPressed: () async {
-                        WebUri webUri = WebUri(
-                            'https://msg.winitech.com/chat' + getTocken());
-                        if (await canLaunchUrl(webUri)) {
-                          await launchUrl(webUri);
-                        }
-                      },
-                      icon: const Icon(
-                        Icons.web,
-                        size: 35,
-                        color: Colors.orange,
+              if (!backUp)
+                Positioned(
+                    bottom: 5,
+                    left: 3,
+                    child: Tooltip(
+                      message: 'Web',
+                      textStyle: const TextStyle(
+                        color: Colors.yellow, // Màu chữ vàng cho tooltip
+                        fontWeight: FontWeight.w400,
                       ),
-                    ),
+                      child: IconButton(
+                        onPressed: () async {
+                          WebUri webUri = WebUri(
+                              'https://msg.winitech.com/chat' + getTocken());
+                          if (await canLaunchUrl(webUri)) {
+                            await launchUrl(webUri);
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.web,
+                          size: 35,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    )),
+            if (backUp)
+              Positioned(
+                  top: 5,
+                  left: 3,
+                  child: ElevatedButton(
+                    child: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      webViewController?.goBack();
+                    },
                   ))
           ],
         ),
