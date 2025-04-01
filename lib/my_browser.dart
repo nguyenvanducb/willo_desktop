@@ -1,5 +1,7 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:developer';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
@@ -114,86 +116,122 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
       Expanded(
         child: Stack(
           children: [
-            InAppWebView(
-              key: webViewKey,
-              webViewEnvironment: webViewEnvironment,
-              initialUrlRequest:
-                  URLRequest(url: WebUri('https://msg.winitech.com/chat')),
-              initialUserScripts: UnmodifiableListView<UserScript>([]),
-              initialSettings: settings,
-              contextMenu: contextMenu,
-              pullToRefreshController: pullToRefreshController,
-              onWebViewCreated: (controller) async {
-                webViewController = controller;
-              },
-              onLoadStart: (controller, url) async {
-                setState(() {
-                  this.url = url.toString();
-                  urlController.text = this.url;
-                });
-              },
-              onPermissionRequest: (controller, request) async {
-                return PermissionResponse(
-                    resources: request.resources,
-                    action: PermissionResponseAction.GRANT);
-              },
-              shouldOverrideUrlLoading: (controller, navigationAction) async {
-                return NavigationActionPolicy.ALLOW;
-              },
-              onLoadStop: (controller, url) async {
-                pullToRefreshController?.endRefreshing();
-                setState(() {
-                  this.url = url.toString();
-                  urlController.text = this.url;
-                });
+            DropTarget(
+              onDragDone: (details) async {
+                final file = details.files.first;
+                final fileContent = await file.readAsBytes();
+                final base64 = base64Encode(fileContent);
+                final name = file.name;
+                final mime = file.mimeType ?? 'application/octet-stream';
 
-                print(url);
-                try {
-                  List<Cookie> cookies =
-                      await cookieManager.getCookies(url: url!);
-                  for (var cookie in cookies) {
-                    print('Cookie: ${cookie.name} = ${cookie.value}');
+                await webViewController?.evaluateJavascript(source: '''
+                (async () => {
+                  try {
+                    const binary = atob("$base64");
+                    const array = Uint8Array.from(binary, c => c.charCodeAt(0));
+                    const file = new File([array], "$name", { type: "$mime" });
+
+                    const inputs = document.querySelectorAll('input[type="file"]');
+                    if (inputs.length > 0) {
+                      const input = inputs[0]; // chọn input đầu tiên
+                      const dt = new DataTransfer();
+                      dt.items.add(file);
+                      input.files = dt.files;
+
+                      // Giả lập click hoặc dispatch sự kiện nếu cần
+                      const evt = new Event("change", { bubbles: true });
+                      input.dispatchEvent(evt);
+                      console.log("✅ File đã được gán vào input!");
+                    } else {
+                      console.warn("❌ Không tìm thấy input file!");
+                    }
+                  } catch (e) {
+                    console.error("🚨 Lỗi xử lý fileDrop:", e);
                   }
-                  notify(cookies[0].value);
-                } catch (e) {
-                  String token = url.toString();
-                  token = token.replaceFirst(
-                      'https://msg.winitech.com/?token=', '');
-                  notify(token);
-                }
+                })();
+              ''');
               },
-              onReceivedError: (controller, request, error) {
-                pullToRefreshController?.endRefreshing();
-              },
-              onProgressChanged: (controller, progress) {
-                if (progress == 100) {
-                  pullToRefreshController?.endRefreshing();
-                }
-                setState(() {
-                  this.progress = progress / 100;
-                  urlController.text = url;
-                });
-              },
-              onUpdateVisitedHistory: (controller, url, isReload) {
-                String domain = url!.host;
-                print('ducnguyenbbb');
-                print(domain);
-                if (domain == 'msg.winitech.com' ||
-                    domain == 'msgauth.winitech.com') {
+              child: InAppWebView(
+                key: webViewKey,
+                webViewEnvironment: webViewEnvironment,
+                initialUrlRequest:
+                    URLRequest(url: WebUri('https://msg.winitech.com/chat')),
+                initialUserScripts: UnmodifiableListView<UserScript>([]),
+                initialSettings: settings,
+                contextMenu: contextMenu,
+                pullToRefreshController: pullToRefreshController,
+                onWebViewCreated: (controller) async {
+                  webViewController = controller;
+                },
+                onLoadStart: (controller, url) async {
                   setState(() {
-                    backUp = false;
                     this.url = url.toString();
                     urlController.text = this.url;
                   });
-                } else {
+                },
+                onPermissionRequest: (controller, request) async {
+                  return PermissionResponse(
+                      resources: request.resources,
+                      action: PermissionResponseAction.GRANT);
+                },
+                shouldOverrideUrlLoading: (controller, navigationAction) async {
+                  return NavigationActionPolicy.ALLOW;
+                },
+                onLoadStop: (controller, url) async {
+                  pullToRefreshController?.endRefreshing();
                   setState(() {
-                    backUp = true;
+                    this.url = url.toString();
+                    urlController.text = this.url;
                   });
-                }
-              },
-              onConsoleMessage: (controller, consoleMessage) {
-                print(consoleMessage);
-              },
+
+                  print(url);
+                  try {
+                    List<Cookie> cookies =
+                        await cookieManager.getCookies(url: url!);
+                    for (var cookie in cookies) {
+                      print('Cookie: ${cookie.name} = ${cookie.value}');
+                    }
+                    notify(cookies[0].value);
+                  } catch (e) {
+                    String token = url.toString();
+                    token = token.replaceFirst(
+                        'https://msg.winitech.com/?token=', '');
+                    notify(token);
+                  }
+                },
+                onReceivedError: (controller, request, error) {
+                  pullToRefreshController?.endRefreshing();
+                },
+                onProgressChanged: (controller, progress) {
+                  if (progress == 100) {
+                    pullToRefreshController?.endRefreshing();
+                  }
+                  setState(() {
+                    this.progress = progress / 100;
+                    urlController.text = url;
+                  });
+                },
+                onUpdateVisitedHistory: (controller, url, isReload) {
+                  String domain = url!.host;
+                  print('ducnguyenbbb');
+                  print(domain);
+                  if (domain == 'msg.winitech.com' ||
+                      domain == 'msgauth.winitech.com') {
+                    setState(() {
+                      backUp = false;
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  } else {
+                    setState(() {
+                      backUp = true;
+                    });
+                  }
+                },
+                onConsoleMessage: (controller, consoleMessage) {
+                  print(consoleMessage);
+                },
+              ),
             ),
             progress < 1.0
                 ? LinearProgressIndicator(value: progress)

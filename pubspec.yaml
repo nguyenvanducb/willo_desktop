@@ -47,6 +47,7 @@ dependencies:
   shared_preferences: ^2.3.2
   json_annotation: ^4.9.0
   windows_single_instance: ^1.0.1
+  desktop_drop: ^0.5.0
 
 dev_dependencies:
   flutter_test:

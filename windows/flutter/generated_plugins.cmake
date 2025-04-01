@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   bitsdojo_window_windows
+  desktop_drop
   flutter_inappwebview_windows
   screen_retriever
   system_tray
