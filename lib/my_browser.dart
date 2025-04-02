@@ -118,38 +118,57 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
           children: [
             DropTarget(
               onDragDone: (details) async {
-                final file = details.files.first;
-                final fileContent = await file.readAsBytes();
-                final base64 = base64Encode(fileContent);
-                final name = file.name;
-                final mime = file.mimeType ?? 'application/octet-stream';
+                final files = <Map<String, String>>[];
+
+                for (final file in details.files) {
+                  final bytes = await file.readAsBytes();
+                  final base64Str = base64Encode(bytes)
+                      .replaceAll('\n', '')
+                      .replaceAll('\r', '');
+                  final name = file.name;
+                  final mime = file.mimeType ?? 'application/octet-stream';
+
+                  files.add({
+                    'base64': base64Str,
+                    'name': name,
+                    'mime': mime,
+                  });
+                }
+
+                final filesJson = jsonEncode(files);
 
                 await webViewController?.evaluateJavascript(source: '''
                 (async () => {
                   try {
-                    const binary = atob("$base64");
-                    const array = Uint8Array.from(binary, c => c.charCodeAt(0));
-                    const file = new File([array], "$name", { type: "$mime" });
+                    const files = $filesJson;
+                    const fileList = [];
+
+                    for (const f of files) {
+                      const binary = atob(f.base64);
+                      const array = Uint8Array.from(binary, c => c.charCodeAt(0));
+                      const file = new File([array], f.name, { type: f.mime });
+                      fileList.push(file);
+                    }
 
                     const inputs = document.querySelectorAll('input[type="file"]');
                     if (inputs.length > 0) {
-                      const input = inputs[0]; // chọn input đầu tiên
+                      const input = inputs[0];
                       const dt = new DataTransfer();
-                      dt.items.add(file);
+                      for (const file of fileList) {
+                        dt.items.add(file);
+                      }
                       input.files = dt.files;
 
-                      // Giả lập click hoặc dispatch sự kiện nếu cần
                       const evt = new Event("change", { bubbles: true });
                       input.dispatchEvent(evt);
-                      console.log("✅ File đã được gán vào input!");
                     } else {
                       console.warn("❌ Không tìm thấy input file!");
                     }
                   } catch (e) {
-                    console.error("🚨 Lỗi xử lý fileDrop:", e);
+                    console.error("🚨 Lỗi xử lý đa file:", e);
                   }
                 })();
-              ''');
+                ''');
               },
               child: InAppWebView(
                 key: webViewKey,
