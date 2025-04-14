@@ -56,8 +56,8 @@ void main(List<String> args) async {
   });
 }
 
-String getTrayImagePath(String imageName) {
-  return Platform.isWindows ? 'assets/$imageName.ico' : 'assets/$imageName.png';
+String getTrayImagePath() {
+  return 'assets/app_icon.ico';
 }
 
 String getImagePath(String imageName) {
@@ -71,9 +71,10 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+final SystemTray systemTray = SystemTray();
+
 class _MyAppState extends State<MyApp> with WindowListener {
   final AppWindow _appWindow = AppWindow();
-  final SystemTray _systemTray = SystemTray();
   final Menu _menuMain = Menu();
   final Menu _menuSimple = Menu();
 
@@ -92,18 +93,13 @@ class _MyAppState extends State<MyApp> with WindowListener {
 
   @override
   void onWindowFocus() async {
-    print("Cửa sổ đã được lấy tiêu điểm");
+    // print("Cửa sổ đã được lấy tiêu điểm");
     if (await windowManager.isFocused()) {
       WindowsTaskbar.resetFlashTaskbarAppIcon();
       WindowsTaskbar.resetOverlayIcon();
+      systemTray.setImage('assets/app_icon.ico');
     }
     windowFocus = true;
-  }
-
-  @override
-  void onWindowUnfocus() {
-    windowFocus = false;
-    print("Cửa sổ đã mất tiêu điểm");
   }
 
   @override
@@ -116,17 +112,19 @@ class _MyAppState extends State<MyApp> with WindowListener {
     List<String> iconList = ['darts_icon', 'gift_icon'];
 
     // We first init the systray menu and then add the menu entries
-    await _systemTray.initSystemTray(iconPath: getTrayImagePath('app_icon'));
-    _systemTray.setTitle("system tray");
-    _systemTray.setToolTip("WillO");
+    // await systemTray.initSystemTray(iconPath: getTrayImagePath('app_icon'));
+    await systemTray.initSystemTray(iconPath: getTrayImagePath());
+    systemTray.setTitle("system tray");
+    systemTray.setToolTip("WillO");
 
     // handle system tray event
-    _systemTray.registerSystemTrayEventHandler((eventName) {
+    systemTray.registerSystemTrayEventHandler((eventName) {
       debugPrint("eventName: $eventName");
       if (eventName == kSystemTrayEventClick) {
-        Platform.isWindows ? _appWindow.show() : _systemTray.popUpContextMenu();
+        Platform.isWindows ? _appWindow.show() : systemTray.popUpContextMenu();
+        systemTray.setImage('assets/app_icon.ico');
       } else if (eventName == kSystemTrayEventRightClick) {
-        Platform.isWindows ? _systemTray.popUpContextMenu() : _appWindow.show();
+        Platform.isWindows ? systemTray.popUpContextMenu() : _appWindow.show();
       }
     });
 
@@ -150,8 +148,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
               const Duration(milliseconds: 500),
               (timer) {
                 _toogleTrayIcon = !_toogleTrayIcon;
-                _systemTray.setImage(
-                    _toogleTrayIcon ? "" : getTrayImagePath('app_icon'));
+                systemTray.setImage(_toogleTrayIcon ? "" : getTrayImagePath());
               },
             );
           },
@@ -165,7 +162,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
             _timer?.cancel();
             _timer = null;
 
-            _systemTray.setImage(getTrayImagePath('app_icon'));
+            systemTray.setImage(getTrayImagePath());
           },
         ),
         MenuSeparator(),
@@ -186,7 +183,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
           debugPrint("Change Context Menu");
 
           _toogleMenu = !_toogleMenu;
-          _systemTray.setContextMenu(_toogleMenu ? _menuMain : _menuSimple);
+          systemTray.setContextMenu(_toogleMenu ? _menuMain : _menuSimple);
         },
       ),
       MenuSeparator(),
@@ -207,7 +204,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
           }),
     ]);
 
-    _systemTray.setContextMenu(_menuMain);
+    systemTray.setContextMenu(_menuMain);
   }
 
   @override
