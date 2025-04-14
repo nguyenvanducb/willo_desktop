@@ -15,7 +15,7 @@ import 'package:willo_desktop/new_screen.dart';
 import 'package:willo_desktop/share_preferences/data_center.dart';
 import 'main.dart';
 
-dynamic dataUserGB = '';
+dynamic dataUser = '';
 
 class InAppWebViewExampleScreen extends StatefulWidget {
   const InAppWebViewExampleScreen({super.key});
@@ -142,7 +142,10 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                   try {
                     const files = $filesJson;
                     const fileList = [];
-
+                    // 👉 Focus lại sau khi thêm file (tránh mất sự kiện chuột)
+                    setTimeout(() => {
+                      document.activeElement?.focus();
+                    }, 10);
                     for (const f of files) {
                       const binary = atob(f.base64);
                       const array = Uint8Array.from(binary, c => c.charCodeAt(0));
@@ -308,7 +311,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
     var data = await apiManager.getMe(data: {});
     if (data.success) {
       setState(() {
-        dataUserGB = data.data;
+        dataUser = data.data;
       });
     }
   }
@@ -316,7 +319,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
   getTocken() {
     try {
       // ignore: prefer_interpolation_to_compose_strings
-      return '?token=' + dataUserGB['user']['accessToken'];
+      return '?token=' + dataUser['user']['accessToken'];
     } catch (e) {
       return '';
     }

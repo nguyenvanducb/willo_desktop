@@ -43,6 +43,16 @@ class DataCenter {
     return prefs?.getString(accessToken) ?? "";
   }
 
+  Future<String> getRequestUuidOnly() async {
+    prefs = await SharedPreferences.getInstance();
+    return prefs?.getString("requestUuidOnly") ?? "";
+  }
+
+  saveRequestUuidOnly(String? value) async {
+    prefs = await SharedPreferences.getInstance();
+    await prefs?.setString("requestUuidOnly", value ?? "");
+  }
+
   Future<String> getUserName() async {
     prefs = await SharedPreferences.getInstance();
     return prefs?.getString(userName) ?? "";
