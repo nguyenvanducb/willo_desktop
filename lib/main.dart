@@ -23,19 +23,9 @@ void main(List<String> args) async {
       onSecondWindow: (args) {});
   // Khởi tạo window manager
   await windowManager.ensureInitialized();
-
-  // Cấu hình cửa sổ khi ứng dụng khởi động
-  windowManager.setBackgroundColor(backgroundEndColor);
   windowManager.waitUntilReadyToShow().then((_) async {
     windowManager.setPreventClose(true);
     windowManager.addListener(MyWindowListener());
-    //   // Ẩn các nút Close, Minimize, Maximize
-    //   await windowManager.setClosable(false);
-    //   await windowManager.setMinimizable(false);
-    //   await windowManager.setMaximizable(false);
-    //   await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-    //   await windowManager.show();
-    //   await windowManager.focus();
   });
   runApp(
     MultiProvider(
@@ -52,7 +42,7 @@ void main(List<String> args) async {
     win.minSize = const Size(600, 450);
     win.alignment = Alignment.center;
     win.title = "WillO";
-    win.show();
+    windowManager.show();
   });
 }
 
@@ -218,34 +208,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
 }
 
 const backgroundStartColor = Color(0xFFFFFFFF);
-const backgroundEndColor = Color(0xFFFFFFFF);
-
-class TitleBar extends StatelessWidget {
-  const TitleBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return WindowTitleBarBox(
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [backgroundStartColor, backgroundEndColor],
-              stops: [0.0, 1.0]),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: MoveWindow(),
-            ),
-            const WindowButtons()
-          ],
-        ),
-      ),
-    );
-  }
-}
+const backgroundEndColor = Color(0x00000000);
 
 final buttonColors = WindowButtonColors(
     iconNormal: const Color(0xFF805306),
@@ -259,34 +222,3 @@ final closeButtonColors = WindowButtonColors(
     mouseDown: const Color(0xFFB71C1C),
     iconNormal: const Color(0xFF805306),
     iconMouseOver: Colors.white);
-
-class WindowButtons extends StatelessWidget {
-  const WindowButtons({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var widthS = MediaQuery.of(context).size.width;
-    return SizedBox(
-      width: widthS,
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        const Text(
-          '  WillO',
-          style: TextStyle(
-              fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black45),
-        ),
-        Row(
-          children: [
-            MinimizeWindowButton(colors: buttonColors),
-            MaximizeWindowButton(colors: buttonColors),
-            CloseWindowButton(
-              colors: closeButtonColors,
-              onPressed: () {
-                appWindow.hide();
-              },
-            ),
-          ],
-        )
-      ]),
-    );
-  }
-}

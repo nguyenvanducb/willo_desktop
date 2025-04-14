@@ -124,12 +124,12 @@ class UserData extends ChangeNotifier {
   }
 
   void showDynamicNotification({String content = '', title = ''}) {
-    print('aaaaaaaaaaaaaabbbbbbbbbbbbbbb');
-    if (!isNotify) {
-      isNotify = true;
-      WindowsTaskbar.setOverlayIcon(
-          ThumbnailToolbarAssetIcon('assets/circle.ico'));
-    }
+    systemTray.setImage('assets/app_icon_badge.ico');
+    // if (!isNotify) {
+    //   isNotify = true;
+    //   WindowsTaskbar.setOverlayIcon(
+    //       ThumbnailToolbarAssetIcon('assets/circle.ico'));
+    // }
 
     /// image tag src must be set
     /// for actions make sure your argruments contains `:` like "action:open_center"
@@ -158,7 +158,6 @@ class UserData extends ChangeNotifier {
     _winNotifyPlugin.initNotificationCallBack((s) async {
       if (s.eventType == EventType.onActivate) {
         await windowManager.show(inactive: true);
-        print('ddddddddd');
       }
     });
     WindowsTaskbar.resetFlashTaskbarAppIcon;

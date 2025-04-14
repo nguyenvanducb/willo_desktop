@@ -10,4 +10,10 @@ class MyWindowListener extends WindowListener {
       windowManager.hide(); // Ẩn cửa sổ
     }
   }
+
+  @override
+  void onWindowShow() {
+    print(
+        "🖼️ App vừa được show từ taskbar (ví dụ sau khi click icon tray hoặc taskbar)");
+  }
 }
