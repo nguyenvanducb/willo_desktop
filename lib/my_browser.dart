@@ -32,6 +32,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
   InAppWebViewController? webViewController;
   CookieManager cookieManager = CookieManager();
   bool backUp = false;
+  String urlOrigin = '';
 
   InAppWebViewSettings settings = InAppWebViewSettings(
       isInspectable: kDebugMode,
@@ -51,7 +52,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
   @override
   void initState() {
     super.initState();
-
+    getToken();
     contextMenu = ContextMenu(
         menuItems: [
           ContextMenuItem(
@@ -112,32 +113,34 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
     return Scaffold(
         body: SafeArea(
             child: Column(children: <Widget>[
-      // const TitleBar(),
       Expanded(
         child: Stack(
           children: [
-            DropTarget(
-              onDragDone: (details) async {
-                final files = <Map<String, String>>[];
+            urlOrigin.length < 50
+                ? const SizedBox()
+                : DropTarget(
+                    onDragDone: (details) async {
+                      final files = <Map<String, String>>[];
 
-                for (final file in details.files) {
-                  final bytes = await file.readAsBytes();
-                  final base64Str = base64Encode(bytes)
-                      .replaceAll('\n', '')
-                      .replaceAll('\r', '');
-                  final name = file.name;
-                  final mime = file.mimeType ?? 'application/octet-stream';
+                      for (final file in details.files) {
+                        final bytes = await file.readAsBytes();
+                        final base64Str = base64Encode(bytes)
+                            .replaceAll('\n', '')
+                            .replaceAll('\r', '');
+                        final name = file.name;
+                        final mime =
+                            file.mimeType ?? 'application/octet-stream';
 
-                  files.add({
-                    'base64': base64Str,
-                    'name': name,
-                    'mime': mime,
-                  });
-                }
+                        files.add({
+                          'base64': base64Str,
+                          'name': name,
+                          'mime': mime,
+                        });
+                      }
 
-                final filesJson = jsonEncode(files);
+                      final filesJson = jsonEncode(files);
 
-                await webViewController?.evaluateJavascript(source: '''
+                      await webViewController?.evaluateJavascript(source: '''
                 (async () => {
                   try {
                     const files = $filesJson;
@@ -172,89 +175,89 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                   }
                 })();
                 ''');
-              },
-              child: InAppWebView(
-                key: webViewKey,
-                webViewEnvironment: webViewEnvironment,
-                initialUrlRequest:
-                    URLRequest(url: WebUri('https://msg.winitech.com/chat')),
-                initialUserScripts: UnmodifiableListView<UserScript>([]),
-                initialSettings: settings,
-                contextMenu: contextMenu,
-                pullToRefreshController: pullToRefreshController,
-                onWebViewCreated: (controller) async {
-                  webViewController = controller;
-                },
-                onLoadStart: (controller, url) async {
-                  setState(() {
-                    this.url = url.toString();
-                    urlController.text = this.url;
-                  });
-                },
-                onPermissionRequest: (controller, request) async {
-                  return PermissionResponse(
-                      resources: request.resources,
-                      action: PermissionResponseAction.GRANT);
-                },
-                shouldOverrideUrlLoading: (controller, navigationAction) async {
-                  return NavigationActionPolicy.ALLOW;
-                },
-                onLoadStop: (controller, url) async {
-                  pullToRefreshController?.endRefreshing();
-                  setState(() {
-                    this.url = url.toString();
-                    urlController.text = this.url;
-                  });
+                    },
+                    child: InAppWebView(
+                      key: webViewKey,
+                      webViewEnvironment: webViewEnvironment,
+                      initialUrlRequest: URLRequest(url: WebUri(urlOrigin)),
+                      initialUserScripts: UnmodifiableListView<UserScript>([]),
+                      initialSettings: settings,
+                      contextMenu: contextMenu,
+                      pullToRefreshController: pullToRefreshController,
+                      onWebViewCreated: (controller) async {
+                        webViewController = controller;
+                      },
+                      onLoadStart: (controller, url) async {
+                        setState(() {
+                          this.url = url.toString();
+                          urlController.text = this.url;
+                        });
+                      },
+                      onPermissionRequest: (controller, request) async {
+                        return PermissionResponse(
+                            resources: request.resources,
+                            action: PermissionResponseAction.GRANT);
+                      },
+                      shouldOverrideUrlLoading:
+                          (controller, navigationAction) async {
+                        return NavigationActionPolicy.ALLOW;
+                      },
+                      onLoadStop: (controller, url) async {
+                        pullToRefreshController?.endRefreshing();
+                        setState(() {
+                          this.url = url.toString();
+                          urlController.text = this.url;
+                        });
 
-                  print(url);
-                  try {
-                    List<Cookie> cookies =
-                        await cookieManager.getCookies(url: url!);
-                    for (var cookie in cookies) {
-                      print('Cookie: ${cookie.name} = ${cookie.value}');
-                    }
-                    notify(cookies[0].value);
-                  } catch (e) {
-                    String token = url.toString();
-                    token = token.replaceFirst(
-                        'https://msg.winitech.com/?token=', '');
-                    notify(token);
-                  }
-                },
-                onReceivedError: (controller, request, error) {
-                  pullToRefreshController?.endRefreshing();
-                },
-                onProgressChanged: (controller, progress) {
-                  if (progress == 100) {
-                    pullToRefreshController?.endRefreshing();
-                  }
-                  setState(() {
-                    this.progress = progress / 100;
-                    urlController.text = url;
-                  });
-                },
-                onUpdateVisitedHistory: (controller, url, isReload) {
-                  String domain = url!.host;
-                  print('ducnguyenbbb');
-                  print(domain);
-                  if (domain == 'msg.winitech.com' ||
-                      domain == 'msgauth.winitech.com') {
-                    setState(() {
-                      backUp = false;
-                      this.url = url.toString();
-                      urlController.text = this.url;
-                    });
-                  } else {
-                    setState(() {
-                      backUp = true;
-                    });
-                  }
-                },
-                onConsoleMessage: (controller, consoleMessage) {
-                  print(consoleMessage);
-                },
-              ),
-            ),
+                        print(url);
+                        try {
+                          List<Cookie> cookies =
+                              await cookieManager.getCookies(url: url!);
+                          for (var cookie in cookies) {
+                            print('Cookie: ${cookie.name} = ${cookie.value}');
+                          }
+                          notify(cookies[0].value);
+                        } catch (e) {
+                          String token = url.toString();
+                          token = token.replaceFirst(
+                              'https://msg.winitech.com/?token=', '');
+                          notify(token);
+                        }
+                      },
+                      onReceivedError: (controller, request, error) {
+                        pullToRefreshController?.endRefreshing();
+                      },
+                      onProgressChanged: (controller, progress) {
+                        if (progress == 100) {
+                          pullToRefreshController?.endRefreshing();
+                        }
+                        setState(() {
+                          this.progress = progress / 100;
+                          urlController.text = url;
+                        });
+                      },
+                      onUpdateVisitedHistory: (controller, url, isReload) {
+                        String domain = url!.host;
+                        print('ducnguyenbbb');
+                        print(domain);
+                        if (domain == 'msg.winitech.com' ||
+                            domain == 'msgauth.winitech.com') {
+                          setState(() {
+                            backUp = false;
+                            this.url = url.toString();
+                            urlController.text = this.url;
+                          });
+                        } else {
+                          setState(() {
+                            backUp = true;
+                          });
+                        }
+                      },
+                      onConsoleMessage: (controller, consoleMessage) {
+                        print(consoleMessage);
+                      },
+                    ),
+                  ),
             progress < 1.0
                 ? LinearProgressIndicator(value: progress)
                 : Container(),
@@ -271,8 +274,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                       ),
                       child: IconButton(
                         onPressed: () async {
-                          WebUri webUri = WebUri(
-                              'https://msg.winitech.com/chat' + getTocken());
+                          WebUri webUri = WebUri(urlOrigin);
                           if (await canLaunchUrl(webUri)) {
                             await launchUrl(webUri);
                           }
@@ -316,12 +318,16 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
     }
   }
 
-  getTocken() {
+  getToken() async {
+    var token = await DataCenter.shared()?.getToken();
     try {
+      print(dataUser['user']['accessToken']);
       // ignore: prefer_interpolation_to_compose_strings
-      return '?token=' + dataUser['user']['accessToken'];
+      urlOrigin =
+          'https://msg.winitech.com?token=' + dataUser['user']['accessToken'];
     } catch (e) {
-      return '';
+      urlOrigin = 'https://msg.winitech.com?token=$token';
     }
+    setState(() {});
   }
 }
