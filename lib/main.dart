@@ -23,7 +23,12 @@ void main(List<String> args) async {
       onSecondWindow: (args) {});
   // Khởi tạo window manager
   await windowManager.ensureInitialized();
+  // Lấy kích thước màn hình
+  final size = await windowManager.getSize();
+  final screenWidth = size.width;
+  final screenHeight = size.height;
   windowManager.waitUntilReadyToShow().then((_) async {
+    await windowManager.setSize(Size(screenWidth * 1.1, screenHeight * 1.2));
     windowManager.setPreventClose(true);
     windowManager.addListener(MyWindowListener());
   });
@@ -85,8 +90,8 @@ class _MyAppState extends State<MyApp> with WindowListener {
   void onWindowFocus() async {
     // print("Cửa sổ đã được lấy tiêu điểm");
     if (await windowManager.isFocused()) {
-      WindowsTaskbar.resetFlashTaskbarAppIcon();
-      WindowsTaskbar.resetOverlayIcon();
+      // WindowsTaskbar.resetFlashTaskbarAppIcon();
+      // WindowsTaskbar.resetOverlayIcon();
       systemTray.setImage('assets/app_icon.ico');
     }
     windowFocus = true;

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:system_tray/system_tray.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:willo_desktop/main.dart';
 import 'package:willo_desktop/my_browser.dart';
@@ -12,7 +11,6 @@ import 'package:windows_notification/notification_message.dart';
 import 'package:windows_notification/windows_notification.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 
-bool isNetwork = true;
 Map<String, dynamic> idConversationMap = {};
 
 class UserData extends ChangeNotifier {
@@ -21,7 +19,6 @@ class UserData extends ChangeNotifier {
   dynamic dataChat = {
     'basicConversationInfo': {'conversationId': ''}
   };
-  final AppWindow _appWindow = AppWindow();
   final _winNotifyPlugin = WindowsNotification(
       applicationId: '${Directory.current.path}\\willo_desktop.exe');
 
@@ -43,7 +40,6 @@ class UserData extends ChangeNotifier {
         } catch (e) {}
       }, onDone: () {
         try {
-          if (!isNetwork) return;
           debugPrint('WebSocket connection closed');
           channel.sink.close();
           Future.delayed(const Duration(milliseconds: 100), () {
