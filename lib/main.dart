@@ -10,8 +10,8 @@ import 'package:willo_desktop/my_browser.dart';
 import 'package:willo_desktop/my_notifier.dart';
 import 'package:willo_desktop/myclose.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:windows_taskbar/windows_taskbar.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
+import 'package:windows_taskbar/windows_taskbar.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final localhostServer = InAppLocalhostServer(documentRoot: 'assets');
@@ -90,8 +90,8 @@ class _MyAppState extends State<MyApp> with WindowListener {
   void onWindowFocus() async {
     // print("Cửa sổ đã được lấy tiêu điểm");
     if (await windowManager.isFocused()) {
-      // WindowsTaskbar.resetFlashTaskbarAppIcon();
-      // WindowsTaskbar.resetOverlayIcon();
+      WindowsTaskbar.resetFlashTaskbarAppIcon();
+      WindowsTaskbar.resetOverlayIcon();
       systemTray.setImage('assets/app_icon.ico');
     }
     windowFocus = true;
