@@ -238,8 +238,6 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                       },
                       onUpdateVisitedHistory: (controller, url, isReload) {
                         String domain = url!.host;
-                        print('ducnguyenbbb');
-                        print(domain);
                         if (domain == 'msg.winitech.com' ||
                             domain == 'msgauth.winitech.com') {
                           setState(() {
@@ -303,7 +301,6 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
   }
 
   notify(token) async {
-    print('kkkkkkkkkkkkk\n$token');
     Provider.of<UserData>(context, listen: false).connectWebSocket(token);
     await DataCenter.shared()?.saveToken(token);
     getMe();
@@ -318,16 +315,42 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
     }
   }
 
-  getToken() async {
-    var token = await DataCenter.shared()?.getToken();
+  Future<void> getToken() async {
+    String token = '';
     try {
-      print(dataUser['user']['accessToken']);
-      // ignore: prefer_interpolation_to_compose_strings
-      urlOrigin =
-          'https://msg.winitech.com?token=' + dataUser['user']['accessToken'];
+      // Lấy token từ DataCenter
+      token = await DataCenter.shared()?.getToken() ?? '';
+
+      // Cố gắng lấy token từ dataUser nếu có
+      if (dataUser != null &&
+          dataUser['user'] != null &&
+          dataUser['user']['accessToken'] != null &&
+          dataUser['user']['accessToken'].isNotEmpty) {
+        urlOrigin =
+            'https://msg.winitech.com?token=${dataUser['user']['accessToken']}';
+      } else {
+        // Sử dụng token dự phòng nếu không lấy được từ dataUser
+        if (token.isNotEmpty) {
+          urlOrigin = 'https://msg.winitech.com?token=$token';
+        } else {
+          // Xử lý trường hợp không có token nào hợp lệ
+          print('Warning: No valid token available');
+          urlOrigin = 'https://msg.winitech.com';
+        }
+      }
     } catch (e) {
-      urlOrigin = 'https://msg.winitech.com?token=$token';
+      print('Error in getToken: $e');
+      // Sử dụng token đã lấy được trước khi xảy ra lỗi (nếu có)
+      if (token.isNotEmpty) {
+        urlOrigin = 'https://msg.winitech.com?token=$token';
+      } else {
+        urlOrigin = 'https://msg.winitech.com';
+      }
+    } finally {
+      // Cập nhật UI
+      if (mounted) {
+        setState(() {});
+      }
     }
-    setState(() {});
   }
 }
