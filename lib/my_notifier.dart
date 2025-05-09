@@ -123,7 +123,7 @@ class UserData extends ChangeNotifier {
     };
   }
 
-  void showDynamicNotification({String content = '', title = ''}) {
+  void showDynamicNotification({String content = '', title = ''}) async {
     // if (!isNotify) {
     //   isNotify = true;
     //   WindowsTaskbar.setOverlayIcon(
@@ -160,6 +160,6 @@ class UserData extends ChangeNotifier {
       }
     });
     WindowsTaskbar.resetFlashTaskbarAppIcon;
-    systemTray.setImage("assets/app_icon_badge.ico");
+    await systemTray.setImage("assets/app_icon_badge.ico");
   }
 }

@@ -16,7 +16,7 @@ import 'package:windows_single_instance/windows_single_instance.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final localhostServer = InAppLocalhostServer(documentRoot: 'assets');
-SystemTray systemTray = SystemTray();
+final SystemTray systemTray = SystemTray();
 bool isNotify = false, windowFocus = false;
 WebViewEnvironment? webViewEnvironment;
 void main(List<String> args) async {
@@ -101,7 +101,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
     // print("Cửa sổ đã được lấy tiêu điểm");
     try {
       if (await windowManager.isFocused()) {
-        systemTray.setImage("assets/app_icon.ico");
+        await systemTray.setImage("assets/app_icon.ico");
         await WindowsTaskbar.resetFlashTaskbarAppIcon();
         try {
           await WindowsTaskbar.resetOverlayIcon();
