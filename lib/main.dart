@@ -16,6 +16,7 @@ import 'package:windows_single_instance/windows_single_instance.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final localhostServer = InAppLocalhostServer(documentRoot: 'assets');
+SystemTray systemTray = SystemTray();
 bool isNotify = false, windowFocus = false;
 WebViewEnvironment? webViewEnvironment;
 void main(List<String> args) async {
@@ -57,8 +58,8 @@ void main(List<String> args) async {
   });
 }
 
-String getTrayImagePath() {
-  return 'assets/app_icon.ico';
+String getTrayImagePath(String imageName) {
+  return Platform.isWindows ? 'assets/$imageName.ico' : 'assets/$imageName.png';
 }
 
 String getImagePath(String imageName) {
@@ -71,8 +72,6 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
-
-final SystemTray systemTray = SystemTray();
 
 class _MyAppState extends State<MyApp> with WindowListener {
   final AppWindow _appWindow = AppWindow();
@@ -100,12 +99,27 @@ class _MyAppState extends State<MyApp> with WindowListener {
   @override
   void onWindowFocus() async {
     // print("Cửa sổ đã được lấy tiêu điểm");
-    if (await windowManager.isFocused()) {
-      WindowsTaskbar.resetFlashTaskbarAppIcon();
-      WindowsTaskbar.resetOverlayIcon();
-      systemTray.setImage('assets/app_icon.ico');
+    try {
+      if (await windowManager.isFocused()) {
+        systemTray.setImage("assets/app_icon.ico");
+        await WindowsTaskbar.resetFlashTaskbarAppIcon();
+        try {
+          await WindowsTaskbar.resetOverlayIcon();
+        } catch (e) {
+          debugPrint("⚠️ Could not reset overlay icon: $e");
+        }
+      }
+    } catch (e) {
+      debugPrint("⚠️ Window check or taskbar update failed: $e");
     }
+
     windowFocus = true;
+  }
+
+  @override
+  void onWindowUnfocus() {
+    windowFocus = false;
+    print("Cửa sổ đã mất tiêu điểm");
   }
 
   @override
@@ -118,8 +132,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
     List<String> iconList = ['darts_icon', 'gift_icon'];
 
     // We first init the systray menu and then add the menu entries
-    // await systemTray.initSystemTray(iconPath: getTrayImagePath('app_icon'));
-    await systemTray.initSystemTray(iconPath: getTrayImagePath());
+    await systemTray.initSystemTray(iconPath: getTrayImagePath('app_icon'));
     systemTray.setTitle("system tray");
     systemTray.setToolTip("WillO");
 
@@ -128,7 +141,6 @@ class _MyAppState extends State<MyApp> with WindowListener {
       debugPrint("eventName: $eventName");
       if (eventName == kSystemTrayEventClick) {
         Platform.isWindows ? _appWindow.show() : systemTray.popUpContextMenu();
-        systemTray.setImage('assets/app_icon.ico');
       } else if (eventName == kSystemTrayEventRightClick) {
         Platform.isWindows ? systemTray.popUpContextMenu() : _appWindow.show();
       }
@@ -154,7 +166,8 @@ class _MyAppState extends State<MyApp> with WindowListener {
               const Duration(milliseconds: 500),
               (timer) {
                 _toogleTrayIcon = !_toogleTrayIcon;
-                systemTray.setImage(_toogleTrayIcon ? "" : getTrayImagePath());
+                systemTray.setImage(
+                    _toogleTrayIcon ? "" : getTrayImagePath('app_icon'));
               },
             );
           },
@@ -168,7 +181,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
             _timer?.cancel();
             _timer = null;
 
-            systemTray.setImage(getTrayImagePath());
+            systemTray.setImage(getTrayImagePath('app_icon'));
           },
         ),
         MenuSeparator(),

@@ -124,11 +124,11 @@ class UserData extends ChangeNotifier {
   }
 
   void showDynamicNotification({String content = '', title = ''}) {
-    if (!isNotify) {
-      isNotify = true;
-      WindowsTaskbar.setOverlayIcon(
-          ThumbnailToolbarAssetIcon('assets/circle.ico'));
-    }
+    // if (!isNotify) {
+    //   isNotify = true;
+    //   WindowsTaskbar.setOverlayIcon(
+    //       ThumbnailToolbarAssetIcon('assets/circle.ico'));
+    // }
 
     /// image tag src must be set
     /// for actions make sure your argruments contains `:` like "action:open_center"
@@ -160,5 +160,6 @@ class UserData extends ChangeNotifier {
       }
     });
     WindowsTaskbar.resetFlashTaskbarAppIcon;
+    systemTray.setImage("assets/app_icon_badge.ico");
   }
 }
