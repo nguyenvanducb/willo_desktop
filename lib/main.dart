@@ -9,6 +9,7 @@ import 'package:system_tray/system_tray.dart';
 import 'package:willo_desktop/my_browser.dart';
 import 'package:willo_desktop/my_notifier.dart';
 import 'package:willo_desktop/myclose.dart';
+import 'package:willo_desktop/share_preferences/data_center.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
@@ -79,7 +80,6 @@ class _MyAppState extends State<MyApp> with WindowListener {
 
   Timer? _timer;
   bool _toogleTrayIcon = true;
-
   bool _toogleMenu = true;
 
   @override
@@ -88,6 +88,12 @@ class _MyAppState extends State<MyApp> with WindowListener {
     initSystemTray();
     windowManager.addListener(this);
     windowManager.setPreventClose(true);
+    getToken();
+  }
+
+  Future<void> getToken() async {
+    tokenG = (await DataCenter.shared()?.getToken())!;
+    setState(() {}); // Để rebuild UI khi có token
   }
 
   @override
@@ -215,7 +221,9 @@ class _MyAppState extends State<MyApp> with WindowListener {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      home: const InAppWebViewExampleScreen(),
+      home: tokenG == 'null'
+          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+          : const InAppWebViewExampleScreen(),
     );
   }
 }

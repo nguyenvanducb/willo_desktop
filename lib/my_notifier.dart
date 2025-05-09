@@ -124,7 +124,6 @@ class UserData extends ChangeNotifier {
   }
 
   void showDynamicNotification({String content = '', title = ''}) {
-    print('aaaaaaaaaaaaaabbbbbbbbbbbbbbb');
     if (!isNotify) {
       isNotify = true;
       WindowsTaskbar.setOverlayIcon(
@@ -158,7 +157,6 @@ class UserData extends ChangeNotifier {
     _winNotifyPlugin.initNotificationCallBack((s) async {
       if (s.eventType == EventType.onActivate) {
         await windowManager.show(inactive: true);
-        print('ddddddddd');
       }
     });
     WindowsTaskbar.resetFlashTaskbarAppIcon;

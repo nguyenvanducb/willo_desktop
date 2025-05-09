@@ -11,11 +11,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:willo_desktop/api/api_manager.dart';
 import 'package:willo_desktop/api/http_manager.dart';
 import 'package:willo_desktop/my_notifier.dart';
-import 'package:willo_desktop/new_screen.dart';
 import 'package:willo_desktop/share_preferences/data_center.dart';
 import 'main.dart';
 
 dynamic dataUser = '';
+String tokenG = 'null';
 
 class InAppWebViewExampleScreen extends StatefulWidget {
   const InAppWebViewExampleScreen({super.key});
@@ -64,11 +64,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
               })
         ],
         settings: ContextMenuSettings(hideDefaultSystemContextMenuItems: false),
-        onCreateContextMenu: (hitTestResult) async {
-          print("onCreateContextMenu");
-          print(hitTestResult.extra);
-          print(await webViewController?.getSelectedText());
-        },
+        onCreateContextMenu: (hitTestResult) async {},
         onHideContextMenu: () {
           print("onHideContextMenu");
         },
@@ -176,8 +172,9 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
               child: InAppWebView(
                 key: webViewKey,
                 webViewEnvironment: webViewEnvironment,
-                initialUrlRequest:
-                    URLRequest(url: WebUri('https://msg.winitech.com/chat')),
+                initialUrlRequest: URLRequest(
+                    url: WebUri(
+                        'https://msg.winitech.com/chat${tokenG == '' ? '' : ('?token=$tokenG')}')),
                 initialUserScripts: UnmodifiableListView<UserScript>([]),
                 initialSettings: settings,
                 contextMenu: contextMenu,
@@ -301,7 +298,6 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
   }
 
   notify(token) async {
-    print('kkkkkkkkkkkkk\n$token');
     Provider.of<UserData>(context, listen: false).connectWebSocket(token);
     await DataCenter.shared()?.saveToken(token);
     getMe();
